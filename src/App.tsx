@@ -8,30 +8,40 @@ const App = () => {
   const [currentIndex, setCurrentIndex] = useState<number>(0)
 
   useEffect(() => {
+    const createImg = (url: string) => (
+      <img
+        className={`w-full h-full object-fill
+          `}
+        src={`${url}?fm=webp`}
+        alt="dumppiTv"
+      />
+    )
+
     const fetchImages = async () => {
       const query = `*[_id == "dumppiTv"][0]{
         autoPlaySpeed,
         "imageUrls": photos[].asset -> url
         }`
 
-      const createImg = (url: string) => (
-        <img
-          className={`w-full h-full object-fill
-              transition-opacity duration-500 ease-in-out
-            `}
-          src={`${url}?fm=webp`}
-          alt="dumppiTv"
-        />
-      )
-
-      const data = await sanityClient.fetch(query)
-      if (images.length === 0) {
-        setImages(data.imageUrls.map(createImg))
-      } else {
-        setNewImages(data.imageUrls.map(createImg))
+      try {
+        const data = await sanityClient.fetch(query)
+        console.log(data)
+        if (!data || !data.imageUrls || data.imageUrls.length === 0) {
+          return
+        }
+        if (images.length === 0) {
+          setImages(data.imageUrls.map(createImg))
+        } else {
+          setNewImages(data.imageUrls.map(createImg))
+        }
+        if (data.autoPlaySpeed) {
+          setAutoPlaySpeed(data.autoPlaySpeed)
+        }
+      } catch (e) {
+        console.log(`Unhappy things happened while fetching images.`, e)
       }
-      setAutoPlaySpeed(data.autoPlaySpeed)
     }
+
     fetchImages()
     const timer = setInterval(() => {
       fetchImages()
@@ -43,7 +53,7 @@ const App = () => {
 
   useEffect(() => {
     if (images.length === 0) return
-    if (newImages.length !== 0) {
+    if (newImages.length !== 0 && currentIndex === images.length - 1) {
       setImages(newImages)
       setNewImages([])
     }
