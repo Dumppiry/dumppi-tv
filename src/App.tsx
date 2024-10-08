@@ -2,21 +2,10 @@ import { useEffect, useState, ReactNode } from 'react'
 import sanityClient from './sanityClient'
 
 const App = () => {
-  //const [imageUrls, setImageUrls] = useState<string[]>([])
   const [images, setImages] = useState<ReactNode[]>([])
   const [newImages, setNewImages] = useState<ReactNode[]>([])
   const [autoPlaySpeed, setAutoPlaySpeed] = useState<number>(0)
   const [currentIndex, setCurrentIndex] = useState<number>(0)
-
-  const createImg = (url: string) => (
-    <img
-      className={`w-full h-full object-fill
-        transition-opacity duration-500 ease-in-out
-      `}
-      src={`${url}?fm=webp`}
-      alt="dumppiTv"
-    />
-  )
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -24,6 +13,16 @@ const App = () => {
         autoPlaySpeed,
         "imageUrls": photos[].asset -> url
         }`
+
+      const createImg = (url: string) => (
+        <img
+          className={`w-full h-full object-fill
+              transition-opacity duration-500 ease-in-out
+            `}
+          src={`${url}?fm=webp`}
+          alt="dumppiTv"
+        />
+      )
 
       const data = await sanityClient.fetch(query)
       if (images.length === 0) {
@@ -36,7 +35,7 @@ const App = () => {
     fetchImages()
     const timer = setInterval(() => {
       fetchImages()
-    }, 300 * 1000)
+    }, 300 * 1000) // 5 minutes
     return () => {
       clearInterval(timer)
     }
